@@ -4,7 +4,7 @@ var mongoose = require("mongoose");
 var logger = require("morgan");
 var path = require("path");
 
-var port = process.env.PORT || 3000;
+var PORT = process.env.PORT || 3000;
 
 // Our scraping tools
 var axios = require("axios");
@@ -29,9 +29,16 @@ app.use(express.static("public"));
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
 mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/NewYorkTimes", {
-  useMongoClient: true
-});
+
+var databaseUri = "mongodb://localhost/NewYorkTimes";
+
+if (process.env.MONGODB_URI){
+mongoose.connect(process.env.MONGODB_URI);
+
+}else{
+	mongoose.connect(databaseUri);
+}
+
 
 // Routes
 var routes = require("./controllers/controller.js");
