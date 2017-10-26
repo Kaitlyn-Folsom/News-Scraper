@@ -1,18 +1,40 @@
+html{
+  background-color:#ccc;
+}
 
-      #notes {
-        float: right;
-        width: 30%;
-      }
-      textarea, input {
-        display: block;
-        width: 100%;
-        background-color: #FCF5C7;
-      }
-      input {
-        height: 36px;
-        font-size: 24px;
-      }
-      textarea {
-        height: 200px;
-        font-size: 18px;
-      }
+.navbar{
+  padding:10px 0;
+}
+
+.container{
+  width:100%;
+  background-color:#ccc;
+  padding:0 40px;
+  margin: 0;
+}
+
+.jumbotron{
+  text-align:center;
+  background-image: url("http://phandroid.s3.amazonaws.com/wp-content/uploads/2012/12/the-new-york-times-banner.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  height:450px;
+  background-size: cover;
+}
+
+.panel-title{
+  font-size:30px;
+  padding:10px;
+  color:white;
+  font-family:"Times New Roman", serif;
+}
+
+.panel-heading{
+  background-color:#262728 !important;
+}
+
+button, form button{
+  background-color:#262728 !important;
+  color:white !important;
+  font-family:"Times New Roman", serif;
+}

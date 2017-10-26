@@ -26,7 +26,7 @@ app.use(logger("dev"));
 // Use body-parser for handling form submissions
 app.use(bodyParser.urlencoded({ extended: false }));
 // Use express.static to serve the public folder as a static directory
-// app.use(express.static("public"));
+app.use(express.static("public"));
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
@@ -39,49 +39,6 @@ mongoose.connect("mongodb://localhost/NewYorkTimes", {
 var routes = require("./controllers/controller.js");
 
 app.use("/", routes);
-
-// Route for getting all Articles from the db
-app.get("/articles", function(req, res) {
-  db.Article.find({}, function(err, found){
-    if(err){
-      console.log(err);
-    }else{
-      res.json(found);
-    }
-  })
-});
-
-// Route for grabbing a specific Article by id, populate it with it's note
-app.get("/articles/:id", function(req, res) {
-
-  var articleId = req.params.id;
-
-  db.Article.findOne({
-    _id: articleId
-  }).populate("note").then(function(dbArticle){
-    res.json(dbArticle);
-  })
-  .catch(function(err){
-    res.json(err);
-  });
-});
-
-// Route for saving/updating an Article's associated Note
-app.post("/articles/:id", function(req, res) {
-  var articleId = req.params.id;
-
-  db.Note.create(req.body)
-  .then(function(dbNote){
-
-    return db.Article.findOneAndUpdate({_id: articleId}, { note:dbNote._id}, {new:true});
-  })
-  .then(function(dbArticle){
-    res.json(dbArticle);
-  })
-  .catch(function(err){
-    res.json(err);
-  });
-});
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");

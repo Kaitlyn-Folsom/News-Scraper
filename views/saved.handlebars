@@ -19,9 +19,6 @@
         <li><a href="/">Home</a></li>
         <li class="active"><a href="/savedarticles">Saved Articles <span class="sr-only">(current)</span></a></li>
       </ul>
-      <form action="/scrape" method="POST" class="navbar-form navbar-left">
-        <button type="submit" class="btn btn-default">SCRAPE NEW ARTICLES!</button>
-      </form>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
@@ -31,8 +28,153 @@
     <div class="row">
       <div class="col-md-12">
         <header class="jumbotron">
-          <h1><span class="glyphicon glyphicon-credit-card"></span>New York Times</h1>
         </header>
       </div>
     </div>  
+
+    <div class="row">
+    <div class="col-md-12">
+      {{#each articles}}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h1 class="panel-title"><a href="{{this.link}}" target="_blank">{{this.title}}</a></h1>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-9">
+                <h3>{{this.summary}}</h3>
+                <p><a href="{{this.link}}" target="_blank">{{this.link}}</a></p>
+              </div>
+              <div class="col-lg-3">
+                <button id="notesModalBtn" type="submit" class="btn btn-default pull-right" data-toggle="modal" data-id={{this.id}} data-target="#notesModal">ARTICLE NOTES</button>
+                <form action="/delete/{{this.id}}?_method=DELETE" method="POST">
+                  <input id="article-title" type="hidden" name="title" value="{{this.title}}">
+                  <input id="article-summary" type="hidden" name="summary" value="{{this.summary}}">
+                  <input id="article-link" type="hidden" name="link" value={{this.link}}>
+                  <button type="submit" class="btn btn-default pull-right">Delete Article</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+  
+ </div> {{!-- End container --}}
+
+{{!--  ==============MODAL======== --}}
+<div class="modal fade" id="notesModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalTitle"><span id="articleID"></span></h4>
+      </div>
+      <div class="modal-body">
+        <div class="savedNotes">
+        </div>
+        <div id="notes">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+
+$(document).on("click", "#notesModalBtn", function() {
+
+  console.log("notes btn clicked");
+  // Empty the notes from the note section
+  $("#notes").empty();
+  // Save the id from the p tag
+  var thisId = $(this).attr("data-id");
+
+  // Now make an ajax call for the Article
+  $.ajax({
+    method: "GET",
+    url: "/articles/" + thisId
+  })
+    // With that done, add the note information to the page
+    .done(function(data) {
+      console.log(data);
+      // The title of the article
+      $("#myModalTitle").text(data.title);
+
+      $("#notes").append("<p id='actualnotes'></p>");
+
+      // If there's a note in the article
+      if (data.note) {
+        console.log(data.note);
+        //begin an unordered list of appended notes
+        $("#actualnotes").append("<ul id='notelist'>");
+
+          for (var i = 0; i < data.note.length; i++) {
+              $('#notelist').append("<li id='" + data.note[i]._id + "'>" + data.note[i].body + " " +
+              "<button data-id='" + data.note[i]._id +
+              "' id='deletenote'>X</button></li>");
+              console.log(data.note.body);
+          }
+
+        $("#actualnotes").append("</ul>");
+
+      }else{
+        //if there are no notes for that article
+        $('#actualnotes').text("There aren't any notes yet.");
+        console.log("No notes for this article");
+      }
+      // A textarea to add a new note body
+      $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
+      // A button to submit a new note, with the id of the article saved to it
+      $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
+    });
+});
+
+// When you click the savenote button
+$(document).on("click", "#savenote", function() {
+  // Grab the id associated with the article from the submit button
+  var thisId = $(this).attr("data-id");
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+    method: "POST",
+    url: "/articles/" + thisId,
+    data: {
+
+      body: $("#bodyinput").val()
+    }
+  }).done(function(data) {
+
+      console.log(data);
+      // Empty the notes section
+      $("#notelist").empty();
+
+      for (var i = 0; i < data.note.length; i++) {
+        $("#notelist").append("<li id='" + data.note[i]._id + "'>" + data.note[i].body + " " + "<button data-id='" + data.note[i]._id +
+        "' id='deletenote'>X</button></li>");
+      }
+    });
+
+  // Also, remove the values entered in the input and textarea for note entry
+  $("#bodyinput").val("");
+
+  console.log("note saved");
+});
+
+$(document).on("click", "#deletenote", function() {
+  // Grab the id associated with the note
+  console.log("delete note btn clicked 😎");
+  var thisId = $(this).attr("data-id");
+  // Run a POST request to delete the note
+  $.ajax({
+    method: "GET",
+    url: "/note/" + thisId,
+  })
+    // With that done
+    .done(function(data) {
+      $("#" + data._id).remove();
+    });
+});
+
+</script>
