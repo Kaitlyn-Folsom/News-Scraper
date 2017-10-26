@@ -4,7 +4,7 @@ var mongoose = require("mongoose");
 var logger = require("morgan");
 var path = require("path");
 
-var PORT = 3000;
+var port = process.env.PORT || 3000;
 
 // Our scraping tools
 var axios = require("axios");
