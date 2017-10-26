@@ -12,8 +12,6 @@ var cheerio = require("cheerio");
 
 var request = require("request");
 
-var db = require("./models");
-
 // Initialize Express
 var app = express();
 
